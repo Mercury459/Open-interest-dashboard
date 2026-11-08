@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+Option Turnover Dashboard
+</title>
+
+<style>
+
+/*************************************************
+General
+*************************************************/
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+body{
+
+    background:#f4f6f9;
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:#222;
+
+}
+
+.wrapper{
+
+    width:96%;
+
+    margin:20px auto;
+
+}
+
+/*************************************************
+Header
+*************************************************/
+
+.header{
+
+    background:#1f2937;
+
+    color:white;
+
+    padding:18px 25px;
+
+    border-radius:10px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.header-title{
+
+    font-size:30px;
+
+    font-weight:700;
+
+}
+
+.header-time{
+
+    font-size:14px;
+
+    opacity:.85;
+
+}
+
+/*************************************************
+Cards
+*************************************************/
+
+.summary{
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(4,1fr);
+
+    gap:18px;
+
+    margin-bottom:20px;
+
+}
+
+.summary-card{
+
+    background:white;
+
+    border-radius:10px;
+
+    box-shadow:
+        0 2px 6px rgba(0,0,0,.15);
+
+    padding:22px;
+
+}
+
+.summary-label{
+
+    color:#666;
+
+    font-size:15px;
+
+}
+
+.summary-value{
+
+    margin-top:10px;
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    color:#2563eb;
+
+}
+
+/*************************************************
+Panels
+*************************************************/
+
+.panel{
+
+    background:white;
+
+    border-radius:10px;
+
+    padding:20px;
+
+    margin-bottom:20px;
+
+    box-shadow:
+        0 2px 6px rgba(0,0,0,.15);
+
+}
+
+.panel-title{
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    margin-bottom:18px;
+
+}
+
+/*************************************************
+Filter
+*************************************************/
+
+.filter-row{
+
+    display:flex;
+
+    gap:18px;
+
+    flex-wrap:wrap;
+
+    align-items:center;
+
+}
+
+.filter-row label{
+
+    font-weight:600;
+
+}
+
+.filter-row select,
+
+.filter-row input{
+
+    padding:8px;
+
+    font-size:14px;
+
+}
+
+
+/*************************************************
+Search Help
+*************************************************/
+
+.search-help{
+
+    margin-top:12px;
+
+    color:#666;
+
+    font-size:13px;
+
+    line-height:1.6;
+
+}
+
+
+/*************************************************
+Table
+*************************************************/
+
+.table-container{
+
+    overflow-x:auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+thead{
+
+    background:#1f2937;
+
+    color:white;
+
+}
+
+th{
+
+    padding:10px;
+
+    cursor:pointer;
+
+    white-space:nowrap;
+
+}
+
+td{
+
+    padding:8px;
+
+    text-align:center;
+
+    border-bottom:
+        1px solid #ddd;
+
+}
+
+tbody tr:nth-child(even){
+
+    background:#fafafa;
+
+}
+
+tbody tr:hover{
+
+    background:#edf4ff;
+
+}
+
+/*************************************************
+Status Badge
+*************************************************/
+
+.badge{
+
+    padding:3px 8px;
+
+    border-radius:12px;
+
+    color:white;
+
+    font-size:12px;
+
+}
+
+.badge.ITM{
+
+    background:#16a34a;
+
+}
+
+.badge.ATM{
+
+    background:#ca8a04;
+
+}
+
+.badge.OTM{
+
+    background:#6b7280;
+
+}
+
+/*************************************************
+Footer
+*************************************************/
+
+.footer{
+
+    margin-top:12px;
+
+    color:#666;
+
+    font-size:14px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="header">
+
+<div class="header-title">
+
+Option Turnover Dashboard
+
+</div>
+
+<div
+    class="header-time"
+    id="generateTime">
+
+--
+
+</div>
+
+</div>
+
+<div class="summary">
+
+<div class="summary-card">
+
+<div class="summary-label">
+
+Contracts
+
+</div>
+
+<div
+    class="summary-value"
+    id="contractCount">
+
+0
+
+</div>
+
+</div>
+
+<div class="summary-card">
+
+<div class="summary-label">
+
+Tickers
+
+</div>
+
+<div
+    class="summary-value"
+    id="tickerCount">
+
+0
+
+</div>
+
+</div>
+
+<div class="summary-card">
+
+<div class="summary-label">
+
+Average IV
+
+</div>
+
+<div
+    class="summary-value"
+    id="avgIV">
+
+0
+
+</div>
+
+</div>
+
+<div class="summary-card">
+
+<div class="summary-label">
+
+Maximum OI
+
+</div>
+
+<div
+    class="summary-value"
+    id="maxOI">
+
+0
+
+</div>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+    <div class="panel-title">
+        Query Parameters
+    </div>
+
+    <div class="filter-row">
+
+        <label>
+
+            Start Date<br>
+
+            <input
+                type="date"
+                id="queryStartDate">
+
+        </label>
+
+        <label>
+
+            End Date<br>
+
+            <input
+                type="date"
+                id="queryEndDate">
+
+        </label>
+
+        <label>
+
+            Ticker(s)<br>
+
+            <input
+                type="text"
+                id="queryTicker"
+                placeholder="AAPL,MSFT">
+
+        </label>
+
+        <label>
+
+            Market<br>
+
+            <select id="queryMarket">
+
+                <option value="nasdaq">
+                    NASDAQ
+                </option>
+
+                <option value="nyse">
+                    NYSE
+                </option>
+
+            </select>
+
+        </label>
+
+        <label>
+
+            Top<br>
+
+            <input
+                type="number"
+                id="queryTop"
+                value="20">
+
+        </label>
+
+        <button id="searchButton">
+
+            Search
+
+        </button>
+
+    </div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">
+
+Filters
+
+</div>
+
+<div class="filter-row">
+
+<label>
+
+Ticker
+
+</label>
+
+<select id="tickerFilter">
+
+<option>
+
+All
+
+</option>
+
+</select>
+
+<label>
+
+Status
+
+</label>
+
+<select id="statusFilter">
+
+<option>
+
+All
+
+</option>
+
+<option>
+
+ITM
+
+</option>
+
+<option>
+
+ATM
+
+</option>
+
+<option>
+
+OTM
+
+</option>
+
+</select>
+
+<label>
+
+Expiry
+
+</label>
+
+<select id="expiryFilter">
+
+<option>
+
+All
+
+</option>
+
+</select>
+
+<label>
+
+Search
+
+</label>
+
+<input
+    id="searchText"
+    type="text"
+    placeholder="Search contracts...">
+
+<div class="search-help">
+
+Search supports:
+<strong>Ticker</strong> (AAPL),
+<strong>Type</strong> (C/P),
+<strong>Strike</strong> (330),
+<strong>Expiry</strong> (2026-09-18),
+<strong>Status</strong> (ITM/ATM/OTM),
+<strong>Bid</strong>,
+<strong>Ask</strong>,
+<strong>Last Price</strong>,
+<strong>Underlying Price</strong>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="panel">
+
+<div class="panel-title">
+
+Option Contracts
+
+</div>
+
+<div class="table-container">
+
+<table id="resultTable">
+
+<thead>
+
+<tr id="tableHeader">
+
+<!-- JavaScript will generate -->
+
+</tr>
+
+</thead>
+
+<tbody>
+
+</tbody>
+
+</table>
+
+</div>
+
+<div
+    class="footer"
+    id="recordCount">
+
+0 contracts
+
+</div>
+
+</div>
+
+<script>
+
+//=====================================================
+// Dashboard Data (Injected by Python)
+//=====================================================
+
+let dashboardData = {
+    summary: {
+        tickerCount: 0,
+        contractCount: 0,
+        maxOI: 0,
+        avgIV: 0
+    },
+    columns: [],
+    rows: []
+};
+
+//=====================================================
+// Global Variables
+//=====================================================
+
+let summary = dashboardData.summary || {};
+
+let columns = dashboardData.columns || [];
+
+let optionData = dashboardData.rows || [];
+
+let filteredData = [...optionData];
+
+let currentSortColumn = null;
+
+let currentSortAscending = true;
+
+
+
+//=====================================================
+// Initialization
+//=====================================================
+
+window.onload=function(){
+
+    updateGenerateTime();
+
+    renderSummary();
+
+    generateTableHeader();
+
+    populateFilters();
+
+    document
+        .getElementById("tickerFilter")
+        .onchange=applyFilters;
+
+    document
+        .getElementById("statusFilter")
+        .onchange=applyFilters;
+
+    document
+        .getElementById("expiryFilter")
+        .onchange=applyFilters;
+
+    document
+        .getElementById("searchText")
+        .oninput=applyFilters;
+
+    filteredData = [...optionData];
+
+    sortTable("Open Interest", false);
+
+    document
+.getElementById("searchButton")
+.onclick = async function(){
+
+    const params = getQueryParameters();
+
+    console.log(params);
+
+    try{
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/search",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify(params)
+
+            }
+        );
+
+        const result = await response.json();
+
+        dashboardData = result;
+
+        summary = dashboardData.summary;
+
+        columns = dashboardData.columns;
+
+        optionData = dashboardData.rows;
+
+        filteredData = [...optionData];
+
+        renderSummary();
+
+        generateTableHeader();
+
+        populateFilters();
+
+        sortTable("Open Interest", false);
+
+    }
+    catch(err){
+
+        console.error(err);
+
+        alert("Cannot connect to Python server.");
+
+    }
+
+}
+
+}
+
+//=====================================================
+// Read Query Parameters
+//=====================================================
+
+function getQueryParameters(){
+
+    return{
+
+        startdate:
+
+            document
+            .getElementById("queryStartDate")
+            .value
+            .replaceAll("-",""),
+
+        enddate:
+
+            document
+            .getElementById("queryEndDate")
+            .value
+            .replaceAll("-",""),
+
+        stocklist:
+
+            document
+            .getElementById("queryTicker")
+            .value
+            .trim(),
+
+        market:
+
+            document
+            .getElementById("queryMarket")
+            .value,
+
+        top:
+
+            Number(
+
+                document
+                .getElementById("queryTop")
+                .value
+
+            )
+
+    };
+
+}
+
+//=====================================================
+// Generation Time
+//=====================================================
+
+function updateGenerateTime(){
+
+    const now = new Date();
+
+    document.getElementById("generateTime").innerHTML =
+        now.toLocaleString();
+
+}
+
+
+//=====================================================
+// Summary
+//=====================================================
+
+function renderSummary(){
+
+    document.getElementById("contractCount").innerHTML =
+        summary.contractCount ?? optionData.length;
+
+    document.getElementById("tickerCount").innerHTML =
+        summary.tickerCount ?? 0;
+
+    document.getElementById("avgIV").innerHTML =
+        summary.avgIV ?? "-";
+
+    document.getElementById("maxOI").innerHTML =
+        Number(summary.maxOI ?? 0).toLocaleString();
+
+}
+
+
+//=====================================================
+// Record Count
+//=====================================================
+
+function updateRecordCount(){
+
+    document.getElementById("recordCount").innerHTML =
+
+        filteredData.length +
+
+        " contracts";
+
+}
+
+//=====================================================
+// Dynamic Header
+//=====================================================
+
+function generateTableHeader(){
+
+    const header =
+        document.getElementById("tableHeader");
+
+    header.innerHTML = "";
+
+    columns.forEach(col=>{
+
+        const th =
+            document.createElement("th");
+
+        th.id = "header_" + col;
+
+        th.innerHTML = col;
+
+        th.onclick = function(){
+
+            sortTable(col);
+
+        };
+
+        header.appendChild(th);
+
+    });
+
+}
+
+
+//=====================================================
+// Render Table
+//=====================================================
+
+function renderTable(rows){
+
+    const tbody =
+        document.querySelector("#resultTable tbody");
+
+    tbody.innerHTML = "";
+
+    rows.forEach(row=>{
+
+        const tr =
+            document.createElement("tr");
+
+        columns.forEach(col=>{
+
+            const td =
+                document.createElement("td");
+
+            let value = row[col];
+
+            //--------------------------------------------------
+            // Missing value
+            //--------------------------------------------------
+
+            if(value===null ||
+               value===undefined){
+
+                value = "";
+
+            }
+
+            //--------------------------------------------------
+            // Status badge
+            //--------------------------------------------------
+
+            if(col==="Status"){
+
+                td.innerHTML =
+                    `<span class="badge ${value}">
+                        ${value}
+                    </span>`;
+
+            }
+
+            //--------------------------------------------------
+            // Number formatting
+            //--------------------------------------------------
+
+            else if(typeof value==="number"){
+
+                if(Number.isInteger(value)){
+
+                    td.innerHTML =
+                        value.toLocaleString();
+
+                }
+
+                else{
+
+                    td.innerHTML =
+                        value.toFixed(2);
+
+                }
+
+            }
+
+            //--------------------------------------------------
+            // Default
+            //--------------------------------------------------
+
+            else{
+
+                td.innerHTML = value;
+
+            }
+
+            tr.appendChild(td);
+
+        });
+
+        tbody.appendChild(tr);
+
+    });
+
+}
+
+
+//=====================================================
+// Populate Filters
+//=====================================================
+
+function populateFilters(){
+
+    populateSelect(
+        "tickerFilter",
+        [...new Set(optionData.map(x=>x.Ticker))]
+    );
+
+    populateSelect(
+        "expiryFilter",
+        [...new Set(optionData.map(x=>x.Expiry))]
+    );
+
+}
+
+
+function populateSelect(id, values){
+
+    const select =
+        document.getElementById(id);
+
+    select.innerHTML =
+        "<option value='All'>All</option>";
+
+    values
+        .sort()
+        .forEach(v=>{
+
+            const option =
+                document.createElement("option");
+
+            option.value = v;
+
+            option.text = v;
+
+            select.appendChild(option);
+
+        });
+
+}
+
+
+//=====================================================
+// Apply Filters
+//=====================================================
+
+function applyFilters(){
+
+    const ticker =
+        document.getElementById("tickerFilter").value;
+
+    const status =
+        document.getElementById("statusFilter").value;
+
+    const expiry =
+        document.getElementById("expiryFilter").value;
+
+    const keyword =
+        document
+            .getElementById("searchText")
+            .value
+            .toLowerCase();
+
+    filteredData =
+        optionData.filter(row=>{
+
+            if(
+                ticker!="All" &&
+                row.Ticker!=ticker
+            )
+                return false;
+
+            if(
+                status!="All" &&
+                row.Status!=status
+            )
+                return false;
+
+            if(
+                expiry!="All" &&
+                row.Expiry!=expiry
+            )
+                return false;
+
+            if (keyword !== "") {
+
+                const searchable = [
+
+                    row.Ticker,
+
+                    row.Type,
+
+                    row.Strike,
+
+                    row.Expiry,
+
+                    row.Status,
+                    
+                    row.bid,
+
+                    row.ask,
+
+                    row.last
+
+                ]
+                .join(" ")
+                .toLowerCase();
+
+                if (!searchable.includes(keyword))
+                    return false;
+                }
+
+            return true;
+
+        });
+
+    renderTable(filteredData);
+
+    updateRecordCount();
+}
+
+
+//=====================================================
+// Sort Table
+//=====================================================
+
+function sortTable(column, ascending = null){
+
+    //-------------------------------------------------
+    // Toggle ascending / descending
+    //-------------------------------------------------
+
+    if (ascending !== null) {
+
+        currentSortColumn = column;
+
+        currentSortAscending = ascending;
+
+    }
+    else if (currentSortColumn === column) {
+
+        currentSortAscending = !currentSortAscending;
+
+    }
+    else {
+
+        currentSortColumn = column;
+
+        currentSortAscending = true;
+
+    }
+
+    //-------------------------------------------------
+    // Sort
+    //-------------------------------------------------
+
+    filteredData.sort(function(a,b){
+
+        let x = a[column];
+
+        let y = b[column];
+
+        //-------------------------------------------------
+        // Missing values
+        //-------------------------------------------------
+
+        if(x===null || x===undefined) x="";
+
+        if(y===null || y===undefined) y="";
+
+        //-------------------------------------------------
+        // Numeric
+        //-------------------------------------------------
+
+        if(typeof x==="number" &&
+           typeof y==="number"){
+
+            return currentSortAscending ?
+                x-y :
+                y-x;
+
+        }
+
+        //-------------------------------------------------
+        // Date
+        //-------------------------------------------------
+
+        if(column==="Expiry"){
+
+            x = new Date(x);
+
+            y = new Date(y);
+
+            return currentSortAscending ?
+                x-y :
+                y-x;
+
+        }
+
+        //-------------------------------------------------
+        // String
+        //-------------------------------------------------
+
+        x = String(x);
+
+        y = String(y);
+
+        return currentSortAscending ?
+
+            x.localeCompare(y)
+
+            :
+
+            y.localeCompare(x);
+
+    });
+
+    renderTable(filteredData);
+
+    updateSortIcons();
+
+}
+
+
+//=====================================================
+// Sort Icons
+//=====================================================
+
+function updateSortIcons(){
+
+    columns.forEach(col=>{
+
+        const th =
+            document.getElementById(
+                "header_"+col
+            );
+
+        if(col===currentSortColumn){
+
+            th.innerHTML =
+                currentSortAscending ?
+
+                col + " ▲"
+
+                :
+
+                col + " ▼";
+
+        }
+
+        else{
+
+            th.innerHTML = col;
+
+        }
+
+    });
+
+}
+
+</script>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
